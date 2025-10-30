@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>母音フラッシュカード</title>
+
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; }
+        select { cursor: pointer; }
+        button { cursor: pointer; }
+        .letter-box {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+    <div id="app" class="max-w-6xl mx-auto"></div>
+
+    <script>
+        // CVC単語データ（全25個）
+        const allWords = [
+            // a の単語（5個）
+    { word: 'cat', jp: 'ネコ', c1: 'c', v: 'a', c2: 't' },
+    { word: 'bag', jp: 'かばん', c1: 'b', v: 'a', c2: 'g' },
+    { word: 'hat', jp: 'ぼうし', c1: 'h', v: 'a', c2: 't' },
+    { word: 'map', jp: '<ruby>地図<rt>ちず</rt></ruby>', c1: 'm', v: 'a', c2: 'p' },
+    { word: 'fan', jp: 'せんぷうき', c1: 'f', v: 'a', c2: 'n' },
+    // e の単語（5個）
+    { word: 'bed', jp: 'ベッド', c1: 'b', v: 'e', c2: 'd' },
+    { word: 'pen', jp: 'ペン', c1: 'p', v: 'e', c2: 'n' },
+    { word: 'ten', jp: '10', c1: 't', v: 'e', c2: 'n' },
+    { word: 'net', jp: 'あみ', c1: 'n', v: 'e', c2: 't' },
+    { word: 'red', jp: '<ruby>赤<rt>あか</rt></ruby>い', c1: 'r', v: 'e', c2: 'd' },
+    // i の単語（5個）
+    { word: 'pig', jp: 'ブタ', c1: 'p', v: 'i', c2: 'g' },
+    { word: 'big', jp: '<ruby>大<rt>おお</rt></ruby>きい', c1: 'b', v: 'i', c2: 'g' },
+    { word: 'six', jp: '6', c1: 's', v: 'i', c2: 'x' },
+    { word: 'pin', jp: 'ピン', c1: 'p', v: 'i', c2: 'n' },
+    { word: 'sit', jp: 'すわる', c1: 's', v: 'i', c2: 't' },
+    // o の単語（5個）
+    { word: 'dog', jp: 'イヌ', c1: 'd', v: 'o', c2: 'g' },
+    { word: 'box', jp: 'はこ', c1: 'b', v: 'o', c2: 'x' },
+    { word: 'hot', jp: '<ruby>暑<rt>あつ</rt></ruby>い', c1: 'h', v: 'o', c2: 't' },
+    { word: 'top', jp: 'てっぺん', c1: 't', v: 'o', c2: 'p' },
+    { word: 'fox', jp: 'キツネ', c1: 'f', v: 'o', c2: 'x' },
+    // u の単語（5個）
+    { word: 'bus', jp: 'バス', c1: 'b', v: 'u', c2: 's' },
+    { word: 'cup', jp: 'カップ', c1: 'c', v: 'u', c2: 'p' },
+    { word: 'sun', jp: '<ruby>太陽<rt>たいよう</rt></ruby>', c1: 's', v: 'u', c2: 'n' },
+    { word: 'run', jp: '<ruby>走<rt>はし</rt></ruby>る', c1: 'r', v: 'u', c2: 'n' },
+    { word: 'fun', jp: '<ruby>楽<rt>たの</rt></ruby>しい', c1: 'f', v: 'u', c2: 'n' }
+];
+
+        let quizWords = [];
+        let currentQuestionIndex = 0;
+        let userAnswer = '';
+        let correctCount = 0;
+        let isAnswered = false;
+        let isQuizStarted = false;
+
+        // ランダムに10問を選ぶ
+        function startQuiz() {
+            const shuffled = [...allWords].sort(() => Math.random() - 0.5);
+            quizWords = shuffled.slice(0, 10);
+            currentQuestionIndex = 0;
+            userAnswer = '';
+            correctCount = 0;
+            isAnswered = false;
+            isQuizStarted = true;
+            render();
+        }
+
+        // 回答処理
+        function handleAnswer(value) {
+            if (isAnswered) return;
+            
+            userAnswer = value;
+            const currentWord = quizWords[currentQuestionIndex];
+            const isCorrect = value === currentWord.v;
+            
+            if (isCorrect) {
+                correctCount++;
+            }
+            
+            isAnswered = true;
+            render();
+            
+            // 自動で読み上げ
+            setTimeout(() => {
+                speak(currentWord.word);
+            }, 300);
+        }
+
+        // 次の問題へ
+        function nextQuestion() {
+            if (currentQuestionIndex < quizWords.length - 1) {
+                currentQuestionIndex++;
+                userAnswer = '';
+                isAnswered = false;
+                render();
+            } else {
+                // 結果画面へ
+                showResult();
+            }
+        }
+
+        // 結果画面
+        function showResult() {
+            isQuizStarted = false;
+            render();
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.7;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function getVowelColor(vowel) {
+            const colors = {
+                'a': 'red',
+                'e': 'blue',
+                'i': 'green',
+                'o': 'orange',
+                'u': 'purple'
+            };
+            return colors[vowel] || 'gray';
+        }
+
+        function render() {
+            if (!isQuizStarted) {
+                // スタート画面 or 結果画面
+                if (quizWords.length === 0) {
+                    // スタート画面
+                    document.getElementById('app').innerHTML = `
+                        <div class="flex items-center justify-center min-h-screen">
+                            <div class="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-2xl">
+                                <h1 class="text-5xl font-bold text-blue-600 mb-6">🔤 母音フラッシュカード</h1>
+                                <p class="text-2xl text-gray-700 mb-4">CVC単語の真ん中の母音を選ぼう！</p>
+                                <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-6 mb-8">
+                                    <p class="text-lg text-gray-700 mb-3">📝 <strong>全25個</strong>の単語から<strong>ランダムに10問</strong>出題されます</p>
+                                    <p class="text-lg text-gray-700 mb-3">🔊 回答すると<strong>自動で読み上げ</strong>されます</p>
+                                    <p class="text-lg text-gray-700">➡️ ボタンを押して次の問題へ進もう！</p>
+                                </div>
+                                <button onclick="startQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-bold px-12 py-6 rounded-2xl shadow-lg transform hover:scale-105 transition">
+                                    🚀 スタート！
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 結果画面
+                    const score = Math.round((correctCount / quizWords.length) * 100);
+                    let message = '';
+                    let emoji = '';
+                    if (score === 100) {
+                        message = 'パーフェクト！すごい！';
+                        emoji = '🎉🏆✨';
+                    } else if (score >= 80) {
+                        message = 'よくできました！';
+                        emoji = '🎊👏';
+                    } else if (score >= 60) {
+                        message = 'がんばりました！';
+                        emoji = '💪😊';
+                    } else {
+                        message = 'もう一度挑戦してみよう！';
+                        emoji = '📚💡';
+                    }
+
+                    document.getElementById('app').innerHTML = `
+                        <div class="flex items-center justify-center min-h-screen">
+                            <div class="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-2xl">
+                                <h1 class="text-5xl font-bold text-purple-600 mb-6">🎯 結果発表</h1>
+                                <div class="text-8xl mb-6">${emoji}</div>
+                                <p class="text-3xl font-bold text-gray-800 mb-4">${message}</p>
+                                <div class="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-2xl p-8 mb-8">
+                                    <p class="text-6xl font-bold text-purple-600 mb-4">${correctCount} / ${quizWords.length}</p>
+                                    <p class="text-4xl font-bold text-blue-600">${score}%</p>
+                                </div>
+                                <button onclick="location.reload()" class="bg-green-500 hover:bg-green-600 text-white text-2xl font-bold px-10 py-5 rounded-2xl shadow-lg transform hover:scale-105 transition">
+                                    🔄 もう一度挑戦する
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            // クイズ画面
+            const currentWord = quizWords[currentQuestionIndex];
+            const progress = currentQuestionIndex + 1;
+            const isCorrect = userAnswer === currentWord.v;
+            const isIncorrect = isAnswered && !isCorrect;
+            const color = getVowelColor(currentWord.v);
+
+            document.getElementById('app').innerHTML = `
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="bg-white rounded-3xl shadow-2xl p-12 max-w-3xl w-full">
+                        <!-- プログレスバー -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xl font-bold text-gray-600">問題 ${progress} / ${quizWords.length}</span>
+                                <span class="text-xl font-bold text-green-600">✓ ${correctCount}問正解</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div class="bg-blue-500 h-4 rounded-full transition-all duration-300" style="width: ${(progress / quizWords.length) * 100}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- 日本語の意味 -->
+                        <div class="text-center mb-4">
+                            <p class="text-6xl font-bold text-gray-800 mb-2">${currentWord.jp}</p>
+                            ${!isAnswered ? `
+                                <button onclick="speak('${currentWord.word}')" class="bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition flex items-center gap-2 mx-auto">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-2.828a9 9 0 000-12.728M12 18v.01"></path></svg>
+                                    <span>🔊 聞く</span>
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <!-- 単語ボックス -->
+                        <div class="flex items-center justify-center gap-3 mb-6">
+                            <div class="letter-box bg-gray-200 text-gray-700" style="width: 70px; height: 70px; font-size: 2rem;">
+                                ${currentWord.c1}
+                            </div>
+                            <div class="letter-box ${isCorrect ? 'bg-green-200 border-4 border-green-500' : isIncorrect ? 'bg-red-200 border-4 border-red-500' : 'bg-yellow-100 border-4 border-yellow-400'}" style="width: 70px; height: 70px; font-size: 2rem;">
+                                ${userAnswer || '?'}
+                            </div>
+                            <div class="letter-box bg-gray-200 text-gray-700" style="width: 70px; height: 70px; font-size: 2rem;">
+                                ${currentWord.c2}
+                            </div>
+                        </div>
+
+                        ${!isAnswered ? `
+                            <!-- 回答ボタン -->
+                            <div class="grid grid-cols-5 gap-3 mb-4">
+                                ${['a', 'e', 'i', 'o', 'u'].map(v => {
+                                    const vColor = getVowelColor(v);
+                                    return `
+                                        <button onclick="handleAnswer('${v}')" class="bg-${vColor}-500 hover:bg-${vColor}-600 text-white text-4xl font-bold py-6 rounded-xl shadow-lg transform hover:scale-105 transition">
+                                            ${v}
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : `
+                            <!-- 結果表示 -->
+                            <div class="mb-4">
+                                ${isCorrect ? `
+                                    <div class="bg-green-100 border-4 border-green-500 rounded-xl p-4 text-center">
+                                        <p class="text-4xl mb-2">🎉</p>
+                                        <p class="text-2xl font-bold text-green-700 mb-2">正解！</p>
+                                        <p class="text-7xl font-bold text-gray-800 mb-3">${currentWord.word}</p>
+                                        <button onclick="speak('${currentWord.word}')" class="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-2 mb-2  w-full hover:bg-yellow-100 cursor-pointer">
+                                            <p class="text-xl text-yellow-700 font-bold">😄 言ってみよう！</p>
+                                        </button>
+                                    </div>
+                                ` : `
+                                    <div class="bg-blue-100 border-4 border-blue-500 rounded-xl p-4 text-center">
+                                        <p class="text-lg text-gray-600 mb-2">正しい答えは <span class="font-bold text-${color}-600 text-7xl">${currentWord.v}</span> だよ！</p>
+                                        <p class="text-7xl font-bold text-gray-800 mb-2">${currentWord.word}</p>
+                                        <button onclick="speak('${currentWord.word}')" class="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-2 mb-2 w-full hover:bg-yellow-100 cursor-pointer">
+                                            <p class="text-xl text-yellow-700 font-bold">😄 言ってみよう！</p>
+                                        </button>
+                                        ${currentWord.v === 'u' ? `
+                                            <div class="bg-purple-50 border-2 border-purple-400 rounded-lg p-2">
+                                                <p class="text-base text-purple-700 font-bold">👀 ポイント！</p>
+                                                <p class="text-sm text-gray-700 mt-1"><span class="font-bold text-purple-600">u</span> なのに、<span class="font-bold text-red-500">「ア」</span>と発音するパターンだね！</p>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `}
+                            </div>
+
+                            <!-- 次へボタン -->
+                            <button onclick="nextQuestion()" class="w-full bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold py-4 rounded-xl shadow-lg transform hover:scale-105 transition">
+                                ${currentQuestionIndex < quizWords.length - 1 ? '➡️ 次の問題へ' : '📊 結果を見る'}
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ページ読み込み時に初期化＆描画
+        render();
+    </script>
+</body>
+</html>
+
+
+
+
+
