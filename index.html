@@ -68,6 +68,8 @@
         let correctCount = 0;
         let isAnswered = false;
         let isQuizStarted = false;
+        let wrongAnswers = []; // 間違えた問題を記録
+        let showRecords = false; // 記録ページを表示するか
 
         // ランダムに10問を選ぶ
         function startQuiz() {
@@ -78,7 +80,29 @@
             correctCount = 0;
             isAnswered = false;
             isQuizStarted = true;
+            wrongAnswers = []; // 間違い記録をリセット
             render();
+        }
+
+        // LocalStorageから記録を読み込む
+        function loadRecords() {
+            const saved = localStorage.getItem('quizRecords');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        // LocalStorageに記録を保存する
+        function saveRecord(record) {
+            const records = loadRecords();
+            records.push(record);
+            localStorage.setItem('quizRecords', JSON.stringify(records));
+        }
+
+        // 全記録を削除
+        function clearAllRecords() {
+            if (confirm('本当に全ての記録を削除しますか？')) {
+                localStorage.removeItem('quizRecords');
+                render();
+            }
         }
 
         // 回答処理
@@ -91,6 +115,14 @@
             
             if (isCorrect) {
                 correctCount++;
+            } else {
+                // 間違えた問題を記録
+                wrongAnswers.push({
+                    word: currentWord.word,
+                    jp: currentWord.jp,
+                    correct: currentWord.v,
+                    answer: value
+                });
             }
             
             isAnswered = true;
@@ -118,6 +150,20 @@
         // 結果画面
         function showResult() {
             isQuizStarted = false;
+            
+            // 記録を自動保存
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            const accuracy = Math.round((correctCount / quizWords.length) * 100);
+            
+            saveRecord({
+                date: dateStr,
+                accuracy: accuracy,
+                correct: correctCount,
+                total: quizWords.length,
+                wrongAnswers: [...wrongAnswers]
+            });
+            
             render();
         }
 
@@ -141,6 +187,67 @@
         }
 
         function render() {
+            // 記録ページを表示
+            if (showRecords) {
+                const records = loadRecords();
+                document.getElementById('app').innerHTML = `
+                    <div class="flex items-center justify-center min-h-screen py-8">
+                        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl w-full">
+                            <div class="flex justify-between items-center mb-6">
+                                <h1 class="text-4xl font-bold text-purple-600">📋 学習記録</h1>
+                                <button onclick="showRecords = false; render();" class="bg-gray-500 hover:bg-gray-600 text-white text-lg font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition">
+                                    ← 戻る
+                                </button>
+                            </div>
+                            
+                            ${records.length === 0 ? `
+                                <div class="text-center py-12">
+                                    <p class="text-2xl text-gray-500 mb-4">📝 まだ記録がありません</p>
+                                    <p class="text-lg text-gray-400">クイズを完了すると自動的に記録されます</p>
+                                </div>
+                            ` : `
+                                <div class="mb-4 flex justify-end">
+                                    <button onclick="clearAllRecords()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-lg shadow-lg transform hover:scale-105 transition">
+                                        🗑️ 一括削除
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-4 max-h-[600px] overflow-y-auto">
+                                    ${records.reverse().map((record, index) => `
+                                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-6">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <span class="text-lg font-bold text-gray-700">📅 ${record.date}</span>
+                                                <span class="text-2xl font-bold ${record.accuracy === 100 ? 'text-green-600' : record.accuracy >= 80 ? 'text-blue-600' : record.accuracy >= 60 ? 'text-orange-600' : 'text-red-600'}">
+                                                    ${record.accuracy}% (${record.correct}/${record.total})
+                                                </span>
+                                            </div>
+                                            
+                                            ${record.wrongAnswers && record.wrongAnswers.length > 0 ? `
+                                                <div class="bg-white rounded-lg p-4 mt-3">
+                                                    <p class="text-sm font-bold text-red-600 mb-2">❌ 間違えた問題：</p>
+                                                    <div class="flex flex-wrap">
+                                                        ${record.wrongAnswers.map(wa => `
+                                                            <span class="inline-block bg-red-50 px-3 py-1 rounded text-sm font-bold text-gray-800 mr-2 mb-2">
+                                                                ${wa.word}
+                                                            </span>
+                                                        `).join('')}
+                                                    </div>
+                                                </div>
+                                            ` : `
+                                                <div class="bg-green-100 rounded-lg p-3 mt-3">
+                                                    <p class="text-sm font-bold text-green-700 text-center">🎉 全問正解！</p>
+                                                </div>
+                                            `}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
             if (!isQuizStarted) {
                 // スタート画面 or 結果画面
                 if (quizWords.length === 0) {
@@ -158,6 +265,11 @@
                                 <button onclick="startQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-bold px-12 py-6 rounded-2xl shadow-lg transform hover:scale-105 transition">
                                     🚀 スタート！
                                 </button>
+                                <div class="mt-6 flex justify-end">
+                                    <button onclick="showRecords = true; render();" class="bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition">
+                                        📋 記録を見る
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -193,6 +305,11 @@
                                 <button onclick="location.reload()" class="bg-green-500 hover:bg-green-600 text-white text-2xl font-bold px-10 py-5 rounded-2xl shadow-lg transform hover:scale-105 transition">
                                     🔄 もう一度挑戦する
                                 </button>
+                                <div class="mt-6 flex justify-end">
+                                    <button onclick="showRecords = true; render();" class="bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition">
+                                        📋 記録を見る
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -301,9 +418,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
