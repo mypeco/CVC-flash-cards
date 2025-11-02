@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>母音フラッシュカード</title>
+    <title>CVC母音フラッシュカード</title>
 
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>">
@@ -22,44 +22,168 @@
             font-weight: bold;
             border-radius: 12px;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+        }
+        .modal.show {
+            display: block;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
     <div id="app" class="max-w-6xl mx-auto"></div>
 
+    <!-- モーダル -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-blue-600">📘 保護者・教育者の方へ</h2>
+                <button onclick="closeModal()" class="text-4xl text-gray-500 hover:text-gray-700 font-bold leading-none">&times;</button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- CVCの基礎説明 -->
+                <section>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">📖 CVCとは？</h3>
+                    <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+                        <p class="text-gray-700 mb-3 text-base">
+                            <strong>CVC</strong>は、英語フォニックスの基礎となる単語の型です。
+                        </p>
+                        <p class="text-sm text-gray-600 mb-2">
+                            <strong>C</strong> = Consonant（子音）<br>
+                            <strong>V</strong> = Vowel（母音：a, e, i, o, u）<br>
+                            <strong>C</strong> = Consonant（子音）
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            例：<strong>c-a-t</strong>, <strong>d-o-g</strong>, <strong>s-u-n</strong>
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 学習の前提 -->
+                <section>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">🔤 CVCを始める前に</h3>
+                    <div class="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
+                        <p class="text-gray-700 mb-2 text-base">
+                            このフラッシュカードは、以下ができるお子さん向けです：
+                        </p>
+                        <ul class="text-sm text-gray-600 list-disc list-inside space-y-1 ml-2">
+                            <li><strong>アルファベットの形が分かる</strong>（大文字・小文字）</li>
+                            <li><strong>ローマ字が読める</strong>（a=あ、b=ぶ など）</li>
+                        </ul>
+                        <p class="text-sm text-gray-600 mt-2">
+                            まだの場合は、先にアルファベット・ローマ字の学習から始めましょう。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 母音の音 -->
+                <section>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">🎵 母音の基本の音</h3>
+                    <div class="bg-green-50 border-2 border-green-300 rounded-lg p-4">
+                        <p class="text-gray-700 mb-3 text-base">
+                            CVCでは、母音を<strong>「短く」</strong>発音します：
+                        </p>
+                        <div class="text-sm text-gray-700 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-red-600 text-lg">a</span>
+                                <span>→ ア（例：c<strong>a</strong>t, h<strong>a</strong>t）</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-blue-600 text-lg">e</span>
+                                <span>→ エ（例：b<strong>e</strong>d, r<strong>e</strong>d）</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-green-600 text-lg">i</span>
+                                <span>→ イ（例：p<strong>i</strong>g, b<strong>i</strong>g）</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-orange-600 text-lg">o</span>
+                                <span>→ オ（例：d<strong>o</strong>g, h<strong>o</strong>t）</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-purple-600 text-lg">u</span>
+                                <span>→ ア（ウに近い）（例：c<strong>u</strong>p, s<strong>u</strong>n）</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3">
+                            <strong>注意：</strong>アルファベット読み（エイ・イー・アイ・オウ・ユー）とは違います！
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 詳しい情報へのリンク -->
+                <section>
+                    <div class="bg-purple-50 border-2 border-purple-300 rounded-lg p-4 text-center">
+                        <p class="text-gray-700 mb-3 text-base">
+                            📚 <strong>学習ステップ・効果的な使い方・発達特性に応じた工夫</strong>など、<br>
+                            詳しい情報はnote記事をご覧ください
+                        </p>
+                        <a href="[noteのURL]" target="_blank" class="inline-block bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg mt-2 transform hover:scale-105 transition">
+                            📝 note記事を読む
+                        </a>
+                    </div>
+                </section>
+            </div>
+
+            <button onclick="closeModal()" class="mt-6 w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transform hover:scale-105 transition">
+                閉じる
+            </button>
+        </div>
+    </div>
+
     <script>
-        // CVC単語データ（全25個）
-        const allWords = [
-            // a の単語（5個）
-    { word: 'cat', jp: 'ネコ', c1: 'c', v: 'a', c2: 't' },
-    { word: 'bag', jp: 'かばん', c1: 'b', v: 'a', c2: 'g' },
-    { word: 'hat', jp: 'ぼうし', c1: 'h', v: 'a', c2: 't' },
-    { word: 'map', jp: '<ruby>地図<rt>ちず</rt></ruby>', c1: 'm', v: 'a', c2: 'p' },
-    { word: 'fan', jp: 'せんぷうき', c1: 'f', v: 'a', c2: 'n' },
+ // CVC単語データ（全25個）
+const allWords = [
+    // a の単語（5個）
+    { word: 'cat', jp: 'ネコ', emoji: '🐱', c1: 'c', v: 'a', c2: 't' },
+    { word: 'bag', jp: 'かばん', emoji: '🎒', c1: 'b', v: 'a', c2: 'g' },
+    { word: 'hat', jp: 'ぼうし', emoji: '🎩', c1: 'h', v: 'a', c2: 't' },
+    { word: 'map', jp: '<ruby>地図<rt>ちず</rt></ruby>', emoji: '🗺️', c1: 'm', v: 'a', c2: 'p' },
+    { word: 'fan', jp: 'せんぷうき', emoji: '🌀', c1: 'f', v: 'a', c2: 'n' },
     // e の単語（5個）
-    { word: 'bed', jp: 'ベッド', c1: 'b', v: 'e', c2: 'd' },
-    { word: 'pen', jp: 'ペン', c1: 'p', v: 'e', c2: 'n' },
-    { word: 'ten', jp: '10', c1: 't', v: 'e', c2: 'n' },
-    { word: 'net', jp: 'あみ', c1: 'n', v: 'e', c2: 't' },
-    { word: 'red', jp: '<ruby>赤<rt>あか</rt></ruby>い', c1: 'r', v: 'e', c2: 'd' },
+    { word: 'bed', jp: 'ベッド', emoji: '🛏️', c1: 'b', v: 'e', c2: 'd' },
+    { word: 'pen', jp: 'ペン', emoji: '🖊️', c1: 'p', v: 'e', c2: 'n' },
+    { word: 'ten', jp: '10', emoji: '🔟', c1: 't', v: 'e', c2: 'n' },
+    { word: 'net', jp: 'あみ', emoji: '🥅', c1: 'n', v: 'e', c2: 't' },
+    { word: 'red', jp: '<ruby>赤<rt>あか</rt></ruby>い', emoji: '🔴', c1: 'r', v: 'e', c2: 'd' },
     // i の単語（5個）
-    { word: 'pig', jp: 'ブタ', c1: 'p', v: 'i', c2: 'g' },
-    { word: 'big', jp: '<ruby>大<rt>おお</rt></ruby>きい', c1: 'b', v: 'i', c2: 'g' },
-    { word: 'six', jp: '6', c1: 's', v: 'i', c2: 'x' },
-    { word: 'pin', jp: 'ピン', c1: 'p', v: 'i', c2: 'n' },
-    { word: 'sit', jp: 'すわる', c1: 's', v: 'i', c2: 't' },
+    { word: 'pig', jp: 'ブタ', emoji: '🐷', c1: 'p', v: 'i', c2: 'g' },
+    { word: 'big', jp: '<ruby>大<rt>おお</rt></ruby>きい', emoji: '📏', c1: 'b', v: 'i', c2: 'g' },
+    { word: 'six', jp: '6', emoji: '6️⃣', c1: 's', v: 'i', c2: 'x' },
+    { word: 'pin', jp: 'ピン', emoji: '📌', c1: 'p', v: 'i', c2: 'n' },
+    { word: 'sit', jp: 'すわる', emoji: '🪑', c1: 's', v: 'i', c2: 't' },
     // o の単語（5個）
-    { word: 'dog', jp: 'イヌ', c1: 'd', v: 'o', c2: 'g' },
-    { word: 'box', jp: 'はこ', c1: 'b', v: 'o', c2: 'x' },
-    { word: 'hot', jp: '<ruby>暑<rt>あつ</rt></ruby>い', c1: 'h', v: 'o', c2: 't' },
-    { word: 'top', jp: 'てっぺん', c1: 't', v: 'o', c2: 'p' },
-    { word: 'fox', jp: 'キツネ', c1: 'f', v: 'o', c2: 'x' },
+    { word: 'dog', jp: 'イヌ', emoji: '🐶', c1: 'd', v: 'o', c2: 'g' },
+    { word: 'box', jp: 'はこ', emoji: '📦', c1: 'b', v: 'o', c2: 'x' },
+    { word: 'hot', jp: '<ruby>暑<rt>あつ</rt></ruby>い', emoji: '🥵', c1: 'h', v: 'o', c2: 't' },
+    { word: 'top', jp: 'てっぺん', emoji: '⛰️', c1: 't', v: 'o', c2: 'p' },
+    { word: 'fox', jp: 'キツネ', emoji: '🦊', c1: 'f', v: 'o', c2: 'x' },
     // u の単語（5個）
-    { word: 'bus', jp: 'バス', c1: 'b', v: 'u', c2: 's' },
-    { word: 'cup', jp: 'カップ', c1: 'c', v: 'u', c2: 'p' },
-    { word: 'sun', jp: '<ruby>太陽<rt>たいよう</rt></ruby>', c1: 's', v: 'u', c2: 'n' },
-    { word: 'run', jp: '<ruby>走<rt>はし</rt></ruby>る', c1: 'r', v: 'u', c2: 'n' },
-    { word: 'fun', jp: '<ruby>楽<rt>たの</rt></ruby>しい', c1: 'f', v: 'u', c2: 'n' }
+    { word: 'bus', jp: 'バス', emoji: '🚌', c1: 'b', v: 'u', c2: 's' },
+    { word: 'cup', jp: 'カップ', emoji: '☕', c1: 'c', v: 'u', c2: 'p' },
+    { word: 'sun', jp: '<ruby>太陽<rt>たいよう</rt></ruby>', emoji: '☀️', c1: 's', v: 'u', c2: 'n' },
+    { word: 'run', jp: '<ruby>走<rt>はし</rt></ruby>る', emoji: '🏃', c1: 'r', v: 'u', c2: 'n' },
+    { word: 'fun', jp: '<ruby>楽<rt>たの</rt></ruby>しい', emoji: '🎉', c1: 'f', v: 'u', c2: 'n' }
 ];
 
         let quizWords = [];
@@ -68,8 +192,25 @@
         let correctCount = 0;
         let isAnswered = false;
         let isQuizStarted = false;
-        let wrongAnswers = []; // 間違えた問題を記録
-        let showRecords = false; // 記録ページを表示するか
+        let wrongAnswers = [];
+        let showRecords = false;
+
+        // モーダル制御
+        function openModal() {
+            document.getElementById('infoModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').classList.remove('show');
+        }
+
+        // モーダル外クリックで閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
 
         // ランダムに10問を選ぶ
         function startQuiz() {
@@ -80,13 +221,13 @@
             correctCount = 0;
             isAnswered = false;
             isQuizStarted = true;
-            wrongAnswers = []; // 間違い記録をリセット
+            wrongAnswers = [];
             render();
         }
 
         // LocalStorageから記録を読み込む
         function loadRecords() {
-            const saved = localStorage.getItem('quizRecords');
+            const saved = localStorage.getItem('cvcQuizRecords');
             return saved ? JSON.parse(saved) : [];
         }
 
@@ -94,13 +235,13 @@
         function saveRecord(record) {
             const records = loadRecords();
             records.push(record);
-            localStorage.setItem('quizRecords', JSON.stringify(records));
+            localStorage.setItem('cvcQuizRecords', JSON.stringify(records));
         }
 
         // 全記録を削除
         function clearAllRecords() {
             if (confirm('本当に全ての記録を削除しますか？')) {
-                localStorage.removeItem('quizRecords');
+                localStorage.removeItem('cvcQuizRecords');
                 render();
             }
         }
@@ -116,7 +257,6 @@
             if (isCorrect) {
                 correctCount++;
             } else {
-                // 間違えた問題を記録
                 wrongAnswers.push({
                     word: currentWord.word,
                     jp: currentWord.jp,
@@ -142,7 +282,6 @@
                 isAnswered = false;
                 render();
             } else {
-                // 結果画面へ
                 showResult();
             }
         }
@@ -151,7 +290,6 @@
         function showResult() {
             isQuizStarted = false;
             
-            // 記録を自動保存
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
             const accuracy = Math.round((correctCount / quizWords.length) * 100);
@@ -212,32 +350,31 @@
                                     </button>
                                 </div>
                                 
-                                <div class="space-y-4 max-h-[600px] overflow-y-auto">
+                                <div class="space-y-3 max-h-[600px] overflow-y-auto">
                                     ${records.reverse().map((record, index) => `
-                                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-6">
-                                            <div class="flex justify-between items-center mb-3">
-                                                <span class="text-lg font-bold text-gray-700">📅 ${record.date}</span>
-                                                <span class="text-2xl font-bold ${record.accuracy === 100 ? 'text-green-600' : record.accuracy >= 80 ? 'text-blue-600' : record.accuracy >= 60 ? 'text-orange-600' : 'text-red-600'}">
+                                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4">
+                                            <div class="flex items-center justify-between gap-4">
+                                                <span class="text-sm font-bold text-gray-700 whitespace-nowrap">📅 ${record.date}</span>
+                                                <span class="text-xl font-bold whitespace-nowrap ${record.accuracy === 100 ? 'text-green-600' : record.accuracy >= 80 ? 'text-blue-600' : record.accuracy >= 60 ? 'text-orange-600' : 'text-red-600'}">
                                                     ${record.accuracy}% (${record.correct}/${record.total})
                                                 </span>
+                                                <div class="flex-1 min-w-0">
+                                                    ${record.wrongAnswers && record.wrongAnswers.length > 0 ? `
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-xs font-bold text-red-600 whitespace-nowrap">❌</span>
+                                                            <div class="flex flex-wrap gap-1">
+                                                                ${record.wrongAnswers.map(wa => `
+                                                                    <span class="inline-block bg-red-50 px-2 py-0.5 rounded text-xs font-bold text-gray-800">
+                                                                        ${wa.word}
+                                                                    </span>
+                                                                `).join('')}
+                                                            </div>
+                                                        </div>
+                                                    ` : `
+                                                        <span class="text-xs font-bold text-green-700">🎉 全問正解！</span>
+                                                    `}
+                                                </div>
                                             </div>
-                                            
-                                            ${record.wrongAnswers && record.wrongAnswers.length > 0 ? `
-                                                <div class="bg-white rounded-lg p-4 mt-3">
-                                                    <p class="text-sm font-bold text-red-600 mb-2">❌ 間違えた問題：</p>
-                                                    <div class="flex flex-wrap">
-                                                        ${record.wrongAnswers.map(wa => `
-                                                            <span class="inline-block bg-red-50 px-3 py-1 rounded text-sm font-bold text-gray-800 mr-2 mb-2">
-                                                                ${wa.word}
-                                                            </span>
-                                                        `).join('')}
-                                                    </div>
-                                                </div>
-                                            ` : `
-                                                <div class="bg-green-100 rounded-lg p-3 mt-3">
-                                                    <p class="text-sm font-bold text-green-700 text-center">🎉 全問正解！</p>
-                                                </div>
-                                            `}
                                         </div>
                                     `).join('')}
                                 </div>
@@ -249,25 +386,27 @@
             }
 
             if (!isQuizStarted) {
-                // スタート画面 or 結果画面
                 if (quizWords.length === 0) {
                     // スタート画面
                     document.getElementById('app').innerHTML = `
                         <div class="flex items-center justify-center min-h-screen">
                             <div class="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-2xl">
-                                <h1 class="text-5xl font-bold text-blue-600 mb-6">🔤 母音フラッシュカード</h1>
+                                <h1 class="text-5xl font-bold text-blue-600 mb-6">🔤 CVC母音<br>フラッシュカード</h1>
                                 <p class="text-2xl text-gray-700 mb-4">CVC単語の真ん中の母音を選ぼう！</p>
                                 <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-6 mb-8">
                                     <p class="text-lg text-gray-700 mb-3">📝 <strong>全25個</strong>の単語から<strong>ランダムに10問</strong>出題されます</p>
                                     <p class="text-lg text-gray-700 mb-3">🔊 回答すると<strong>自動で読み上げ</strong>されます</p>
                                     <p class="text-lg text-gray-700">➡️ ボタンを押して次の問題へ進もう！</p>
                                 </div>
-                                <button onclick="startQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-bold px-12 py-6 rounded-2xl shadow-lg transform hover:scale-105 transition">
+                                <button onclick="startQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white text-3xl font-bold px-12 py-6 rounded-2xl shadow-lg transform hover:scale-105 transition mb-4">
                                     🚀 スタート！
                                 </button>
-                                <div class="mt-6 flex justify-end">
+                                <div class="flex justify-center gap-3">
                                     <button onclick="showRecords = true; render();" class="bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition">
                                         📋 記録を見る
+                                    </button>
+                                    <button onclick="openModal()" class="bg-purple-500 hover:bg-purple-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition">
+                                        📘 保護者・教育者の方へ
                                     </button>
                                 </div>
                             </div>
@@ -302,12 +441,15 @@
                                     <p class="text-6xl font-bold text-purple-600 mb-4">${correctCount} / ${quizWords.length}</p>
                                     <p class="text-4xl font-bold text-blue-600">${score}%</p>
                                 </div>
-                                <button onclick="location.reload()" class="bg-green-500 hover:bg-green-600 text-white text-2xl font-bold px-10 py-5 rounded-2xl shadow-lg transform hover:scale-105 transition">
+                                <button onclick="location.reload()" class="bg-green-500 hover:bg-green-600 text-white text-2xl font-bold px-10 py-5 rounded-2xl shadow-lg transform hover:scale-105 transition mb-4">
                                     🔄 もう一度挑戦する
                                 </button>
-                                <div class="mt-6 flex justify-end">
+                                <div class="flex justify-center gap-3">
                                     <button onclick="showRecords = true; render();" class="bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition">
                                         📋 記録を見る
+                                    </button>
+                                    <button onclick="openModal()" class="bg-purple-500 hover:bg-purple-600 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition">
+                                        📘 保護者・教育者の方へ
                                     </button>
                                 </div>
                             </div>
@@ -340,7 +482,7 @@
 
                         <!-- 日本語の意味 -->
                         <div class="text-center mb-4">
-                            <p class="text-6xl font-bold text-gray-800 mb-2">${currentWord.jp}</p>
+                            <p class="text-6xl font-bold text-gray-800 mb-2">${currentWord.jp} ${currentWord.emoji}</p>
                             ${!isAnswered ? `
                                 <button onclick="speak('${currentWord.word}')" class="bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold px-6 py-3 rounded-xl shadow-lg transform hover:scale-105 transition flex items-center gap-2 mx-auto">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-2.828a9 9 0 000-12.728M12 18v.01"></path></svg>
